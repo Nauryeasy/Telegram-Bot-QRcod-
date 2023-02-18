@@ -22,7 +22,7 @@ async def process_start_command(message: types.Message):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(start_buttons)
 
-    await message.reply("Привет!\nТебя приветствует бот для проверки ссылок и QR_Cods!\n(Да, да, эт я)")
+    await message.reply("Привет!\nТебя приветствует бот для проверки ссылок и QR_Cods!\n(Да, да, эт я)", reply_markup=keyboard)
 
 
 @dp.message_handler(Text(equals='Отправить URL 👀'))
