@@ -18,11 +18,11 @@ async def process_start_command(message: types.Message):
 
 
 @dp.message_handler(Text(equals='Отправить URL 👀'))
-async def process_start_command(message: types.Message, state: FSMContext):
+async def processing_url(message: types.Message, state: FSMContext):
     await bot.send_message(message.from_user.id, "Напиши url, который хочешь проверить:")
     current_state = await state.get_state()
 
 
 @dp.message_handler(Text(equals='Загрузить QR_code 🖥'))
-async def process_start_command(message: types.Message, state: FSMContext):
+async def processing_qr_code(message: types.Message, state: FSMContext):
     pass
