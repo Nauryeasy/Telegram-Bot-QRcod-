@@ -27,13 +27,13 @@ async def process_start_command(message: types.Message):
 
 @dp.message_handler(Text(equals='Отправить URL 👀'))
 async def processing_url(message: types.Message, state: FSMContext):
-    await state.set_state(TestStates.all()[0])
+    await state.set_state(TestStates.all()[1])
     await bot.send_message(message.from_user.id, "Напиши url, который хочешь проверить:")
 
 
 @dp.message_handler(Text(equals='Загрузить QR_code 🖥'))
 async def processing_qr_code(message: types.Message, state: FSMContext):
-    await state.set_state(TestStates.all()[1])
+    await state.set_state(TestStates.all()[0])
     await bot.send_message(message.from_user.id, "Отправь qr_code, который хочешь проверить:")
 
 
