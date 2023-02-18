@@ -47,3 +47,6 @@ async def second_test_state_case_met(message: types.Message):
 @dp.message_handler(state=TestStates.QR_STATE[0])
 async def second_test_state_case_met(message: types.Message):
     await message.reply('Второй!', reply=False)
+
+if __name__ == '__main__':
+    executor.start_polling(dp)
