@@ -41,7 +41,7 @@ async def processing_qr_code(message: types.Message, state: FSMContext):
 async def solution_url(message: types.Message):
     url = message.text
     result = check_link(url)
-    await bot.send_message(f"{result['https']}")
+    await message.reply(f'{result["https"]}', reply=False)
 
 
 @dp.message_handler(state=TestStates.QR_STATE[0])
