@@ -18,9 +18,10 @@ dp.middleware.setup(LoggingMiddleware())
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
-    start_buttons = ['Отправить URL 👀', 'Загрузить QR_code 🖥']
+    start_button_1, start_button_2 = 'Отправить URL 👀', 'Загрузить QR_code 🖥'
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(start_buttons)
+    keyboard.add(start_button_1)
+    keyboard.add(start_button_2)
 
     await message.reply("Привет!\nТебя приветствует бот для проверки ссылок и QR_Cods!\n(Да, да, эт я)", reply_markup=keyboard)
 
