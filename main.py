@@ -5,13 +5,11 @@ from aiogram.utils import executor
 from config import TOKEN
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
-
-from .src.check_url import check_link
+from src.check_url import check_link
 from utils import TestStates
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
-
 
 dp.middleware.setup(LoggingMiddleware())
 
@@ -23,7 +21,8 @@ async def process_start_command(message: types.Message):
     keyboard.add(start_button_1)
     keyboard.add(start_button_2)
 
-    await message.reply("Привет!\nТебя приветствует бот для проверки ссылок и QR_Cods!\n(Да, да, эт я)", reply_markup=keyboard)
+    await message.reply("Привет!\nТебя приветствует бот для проверки ссылок и QR_Cods!\n(Да, да, эт я)",
+                        reply_markup=keyboard)
 
 
 @dp.message_handler(Text(equals='Отправить URL 👀'))
@@ -39,15 +38,16 @@ async def processing_qr_code(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=TestStates.URL_STATE[0])
-async def second_test_state_case_met(message: types.Message):
+async def solution_url(message: types.Message):
     url = message.text
     result = check_link(url)
     await bot.send_message(f"{result['https']}")
 
 
 @dp.message_handler(state=TestStates.QR_STATE[0])
-async def second_test_state_case_met(message: types.Message):
+async def solution_QRcode(message: types.Message):
     await message.reply('Второй!', reply=False)
+
 
 if __name__ == '__main__':
     executor.start_polling(dp)
