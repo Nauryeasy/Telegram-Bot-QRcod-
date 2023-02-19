@@ -25,7 +25,7 @@ async def process_start_command(message: types.Message):
     keyboard.add(start_button_1)
     keyboard.add(start_button_2)
     # keyboard.add(start_button_3)
-    with open('7e651bd7-87d5-4001-acd7-f8d60fe06c59.png', 'rb') as file:
+    with open('img.png', 'rb') as file:
         await message.answer_photo(photo=file)
         await message.answer("""|----------------------------------
 |<b>Приветствую тебя пользователь!</b>
@@ -43,21 +43,15 @@ async def process_start_command(message: types.Message):
 
 
 @dp.message_handler(commands=["qrcode"])
-async def cmd_qrcode(message: types.Message):
-    start_button_1, start_button_2 = 'Отправить URL 👀', 'Загрузить QR_code 🖥'  # , 'Отмена ❌'
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(start_button_1)
-    keyboard.add(start_button_2)
-    await message.answer("Hello!")
+async def cmd_qrcode(message: types.Message, state: FSMContext):
+    await state.set_state(TestStates.all()[0])
+    await bot.send_message(message.from_user.id, "Отправь qr_code, который хочешь проверить:")
 
 
 @dp.message_handler(commands=["url"])
-async def cmd_url(message: types.Message):
-    start_button_1, start_button_2 = 'Отправить URL 👀', 'Загрузить QR_code 🖥'  # , 'Отмена ❌'
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(start_button_1)
-    keyboard.add(start_button_2)
-    await message.answer("Hello!")
+async def cmd_url(message: types.Message, state: FSMContext):
+    await state.set_state(TestStates.all()[1])
+    await bot.send_message(message.from_user.id, "Напиши url, который хочешь проверить:")
 
 
 @dp.message_handler(commands=["help"])
@@ -66,7 +60,7 @@ async def cmd_help(message: types.Message):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(start_button_1)
     keyboard.add(start_button_2)
-    with open('img.png', 'rb') as file:
+    with open('img_1.png', 'rb') as file:
         await message.answer_photo(photo=file)
         await message.answer(
             """
