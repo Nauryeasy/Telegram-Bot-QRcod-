@@ -18,7 +18,7 @@ dp.middleware.setup(LoggingMiddleware())
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
-    start_button_1, start_button_2 = 'Отправить URL 👀', 'Загрузить QR_code 🖥'#, 'Отмена ❌'
+    start_button_1, start_button_2 = 'Отправить URL 👀', 'Загрузить QR_code 🖥'  # , 'Отмена ❌'
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(start_button_1)
     keyboard.add(start_button_2)
@@ -51,13 +51,14 @@ async def solution_url(message: types.Message, state: FSMContext):
     await message.reply("Подождите пожалуйста, идет проверка ссылки...", reply=False)
     try:
         result = check_link(url)
-        card = f'Перенаправления: {result["redirect"]}\n' \
-               f'Поддержка https: {result["https"]}\n' \
-               f'Наличие SSL сертификата: {result["ssl"]}\n' \
-               f'Пародирование известных доменов: {result["suspicious"]}\n' \
-               f'Подозрительный JS код: {result["suspicious_js"]}\n' \
-               f'Чрезмерно длинных домен: {result["Long_level"]}\n' \
-               f'Нечитаемый домен: {result["Unreadability"]}\n'
+        galochka, krestik = '✅', '❌'
+        card = f'Перенаправления: {galochka if result["redirect"] == True else krestik}\n' \
+               f'Поддержка https: {galochka if result["https"] == True else krestik}\n' \
+               f'Наличие SSL сертификата: {galochka if result["ssl"] == True else krestik}\n' \
+               f'Пародирование известных доменов: {galochka if result["suspicious"] == True else krestik}\n' \
+               f'Подозрительный JS код: {galochka if result["suspicious_js"] == True else krestik}\n' \
+               f'Чрезмерно длинных домен: {galochka if result["Long_level"] == True else krestik}\n' \
+               f'Нечитаемый домен: {galochka if result["Unreadability"] == True else krestik}\n'
         await message.reply(card, reply=False)
         await state.reset_state()
     except:
@@ -74,13 +75,14 @@ async def solution_QRcode(message: types.Message, state: FSMContext):
         await message.reply("Подождите пожалуйста, идет проверка ссылки...", reply=False)
         try:
             result = check_link(url)
-            card = f'Перенаправления: {result["redirect"]}\n' \
-                   f'Поддержка https: {result["https"]}\n' \
-                   f'Наличие SSL сертификата: {result["ssl"]}\n' \
-                   f'Пародирование известных доменов: {result["suspicious"]}\n' \
-                   f'Подозрительный JS код: {result["suspicious_js"]}\n' \
-                   f'Чрезмерно длинных домен: {result["Long_level"]}\n' \
-                   f'Нечитаемый домен: {result["Unreadability"]}\n'
+            galochka, krestik = '✅', '❌'
+            card = f'Перенаправления: {galochka if result["redirect"] == True else krestik}\n' \
+                   f'Поддержка https: {galochka if result["https"] == True else krestik}\n' \
+                   f'Наличие SSL сертификата: {galochka if result["ssl"] == True else krestik}\n' \
+                   f'Пародирование известных доменов: {galochka if result["suspicious"] == True else krestik}\n' \
+                   f'Подозрительный JS код: {galochka if result["suspicious_js"] == True else krestik}\n' \
+                   f'Чрезмерно длинных домен: {galochka if result["Long_level"] == True else krestik}\n' \
+                   f'Нечитаемый домен: {galochka if result["Unreadability"] == True else krestik}\n'
             await message.reply(card, reply=False)
             await state.reset_state()
         except:
