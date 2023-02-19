@@ -54,7 +54,7 @@ def check_link(link):
         'suspicious': is_suspicious(link),
         'solution': is_solution(link),
         'suspicious_js': has_suspicious_js(link),
-        'Long level': is_long_level(link),
+        'Long_level': is_long_level(link),
         'Unreadability': is_unreadable(link)
     }
     return stats

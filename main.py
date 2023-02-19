@@ -5,10 +5,12 @@ from aiogram.utils import executor
 from config import TOKEN
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
+
+from src.tranlete_qr_code import get_link_qr_code
 from src.check_url import check_link
 from utils import TestStates
 
-bot = Bot(token=TOKEN)
+bot = Bot(token=TOKEN, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 dp.middleware.setup(LoggingMiddleware())
@@ -16,10 +18,11 @@ dp.middleware.setup(LoggingMiddleware())
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
-    start_button_1, start_button_2 = 'Отправить URL 👀', 'Загрузить QR_code 🖥'
+    start_button_1, start_button_2 = 'Отправить URL 👀', 'Загрузить QR_code 🖥'#, 'Отмена ❌'
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(start_button_1)
     keyboard.add(start_button_2)
+    # keyboard.add(start_button_3)
 
     await message.reply("Привет!\nТебя приветствует бот для проверки ссылок и QR_Cods!\n(Да, да, эт я)",
                         reply_markup=keyboard)
@@ -37,16 +40,55 @@ async def processing_qr_code(message: types.Message, state: FSMContext):
     await bot.send_message(message.from_user.id, "Отправь qr_code, который хочешь проверить:")
 
 
+@dp.message_handler(Text(equals='Отмена ❌'))
+async def processing_url(message: types.Message, state: FSMContext):
+    await state.reset_state()
+
+
 @dp.message_handler(state=TestStates.URL_STATE[0])
-async def solution_url(message: types.Message):
+async def solution_url(message: types.Message, state: FSMContext):
     url = message.text
-    result = check_link(url)
-    await message.reply(f'{result["https"]}', reply=False)
+    await message.reply("Подождите пожалуйста, идет проверка ссылки...", reply=False)
+    try:
+        result = check_link(url)
+        card = f'Перенаправления: {result["redirect"]}\n' \
+               f'Поддержка https: {result["https"]}\n' \
+               f'Наличие SSL сертификата: {result["ssl"]}\n' \
+               f'Пародирование известных доменов: {result["suspicious"]}\n' \
+               f'Подозрительный JS код: {result["suspicious_js"]}\n' \
+               f'Чрезмерно длинных домен: {result["Long_level"]}\n' \
+               f'Нечитаемый домен: {result["Unreadability"]}\n'
+        await message.reply(card, reply=False)
+        await state.reset_state()
+    except:
+        await message.reply("Некорректная ссылка, попробуйте снова😵", reply=False)
+        await state.reset_state()
 
 
-@dp.message_handler(state=TestStates.QR_STATE[0])
-async def solution_QRcode(message: types.Message):
-    await message.reply('Второй!', reply=False)
+@dp.message_handler(state=TestStates.QR_STATE[0], content_types=['photo'])
+async def solution_QRcode(message: types.Message, state: FSMContext):
+    await message.reply("Изображение скачивается...", reply=False)
+    await message.photo[-1].download('src/img.png')
+    try:
+        url = get_link_qr_code()
+        await message.reply("Подождите пожалуйста, идет проверка ссылки...", reply=False)
+        try:
+            result = check_link(url)
+            card = f'Перенаправления: {result["redirect"]}\n' \
+                   f'Поддержка https: {result["https"]}\n' \
+                   f'Наличие SSL сертификата: {result["ssl"]}\n' \
+                   f'Пародирование известных доменов: {result["suspicious"]}\n' \
+                   f'Подозрительный JS код: {result["suspicious_js"]}\n' \
+                   f'Чрезмерно длинных домен: {result["Long_level"]}\n' \
+                   f'Нечитаемый домен: {result["Unreadability"]}\n'
+            await message.reply(card, reply=False)
+            await state.reset_state()
+        except:
+            await message.reply("Некорректная ссылка, попробуйте снова😵", reply=False)
+            await state.reset_state()
+    except:
+        await message.reply("Простите, не удалось прочитать qr_code, попробуйте снова😵", reply=False)
+        await state.reset_state()
 
 
 if __name__ == '__main__':
