@@ -9,6 +9,7 @@ from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from src.tranlete_qr_code import get_link_qr_code
 from src.check_url import check_link
 from utils import TestStates
+from aiogram.utils.markdown import hide_link
 
 bot = Bot(token=TOKEN, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot, storage=MemoryStorage())
@@ -17,15 +18,65 @@ dp.middleware.setup(LoggingMiddleware())
 
 
 @dp.message_handler(commands=['start'])
+@dp.message_handler(content_types=['photo'])
 async def process_start_command(message: types.Message):
     start_button_1, start_button_2 = 'Отправить URL 👀', 'Загрузить QR_code 🖥'  # , 'Отмена ❌'
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(start_button_1)
     keyboard.add(start_button_2)
     # keyboard.add(start_button_3)
+    with open('7e651bd7-87d5-4001-acd7-f8d60fe06c59.png', 'rb') as file:
+        await message.answer_photo(photo=file)
+        await message.answer("""|----------------------------------
+|<b>Приветствую тебя пользователь!</b>
+|----------------------------------
+|<b>Чтобы пользоваться ботом, посмотрите на список команд:</b>
+|----------------------------------
+|
+|<b>---></b> /qr_code
+|
+|<b>---></b> /url
+|
+|<b>---></b> /help
+|
+|----------------------------------""", parse_mode="HTML", reply_markup=keyboard)
 
-    await message.reply("Привет!\nТебя приветствует бот для проверки ссылок и QR_Cods!\n(Да, да, эт я)",
-                        reply_markup=keyboard)
+
+@dp.message_handler(commands=["qrcode"])
+async def cmd_qrcode(message: types.Message):
+    start_button_1, start_button_2 = 'Отправить URL 👀', 'Загрузить QR_code 🖥'  # , 'Отмена ❌'
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(start_button_1)
+    keyboard.add(start_button_2)
+    await message.answer("Hello!")
+
+
+@dp.message_handler(commands=["url"])
+async def cmd_url(message: types.Message):
+    start_button_1, start_button_2 = 'Отправить URL 👀', 'Загрузить QR_code 🖥'  # , 'Отмена ❌'
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(start_button_1)
+    keyboard.add(start_button_2)
+    await message.answer("Hello!")
+
+
+@dp.message_handler(commands=["help"])
+async def cmd_help(message: types.Message):
+    start_button_1, start_button_2 = 'Отправить URL 👀', 'Загрузить QRcode 🖥'  # , 'Отмена ❌'
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(start_button_1)
+    keyboard.add(start_button_2)
+    with open('img.png', 'rb') as file:
+        await message.answer_photo(photo=file)
+        await message.answer(
+            """
+            <b>ВЫ ОБРАТИЛИСЬ ПО КОММАНДЕ /help</b>
+            
+1️⃣ /qrcode - при указании QRcode'а в данной команде, вы получите ссылку, а затем ссылка будет проверенна на различные факторы безопасности ссылки и затем выводиться список.
+            
+2️⃣ /url - при указании ссылки в данной команде, выполнится проверка на различные факторы безопасности и тут же вам выводиться список
+            """, parse_mode='HTML', reply_markup=keyboard
+        )
 
 
 @dp.message_handler(Text(equals='Отправить URL 👀'))
