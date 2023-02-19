@@ -35,7 +35,13 @@ def has_ssl_cert(link):
 
 
 def is_suspicious(link):
-    return any(site in link for site in ['google', 'facebook', 'amazon', 'twitter', 'linkedin', 'youtube'])
+    domens = ['google', 'facebook', 'amazon', 'twitter', 'linkedin', 'youtube']
+    flag = any(site in link for site in domens)
+    for i in domens:
+        if link.count(i):
+            flag = False
+
+    return flag
 
 
 def is_long_level(link):
@@ -54,7 +60,7 @@ def check_link(link):
         'suspicious': is_suspicious(link),
         'solution': is_solution(link),
         'suspicious_js': has_suspicious_js(link),
-        'Long_level': is_long_level(link),
+        'Long level': is_long_level(link),
         'Unreadability': is_unreadable(link)
     }
     return stats
