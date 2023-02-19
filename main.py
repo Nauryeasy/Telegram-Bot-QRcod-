@@ -57,7 +57,7 @@ async def solution_url(message: types.Message, state: FSMContext):
                f'Наличие SSL сертификата: {galochka if result["ssl"] == True else krestik}\n' \
                f'Пародирование известных доменов: {galochka if result["suspicious"] == True else krestik}\n' \
                f'Подозрительный JS код: {galochka if result["suspicious_js"] == True else krestik}\n' \
-               f'Чрезмерно длинных домен: {galochka if result["Long_level"] == True else krestik}\n' \
+               f'Чрезмерно длинных домен: {galochka if result["Long level"] == True else krestik}\n' \
                f'Нечитаемый домен: {galochka if result["Unreadability"] == True else krestik}\n'
         await message.reply(card, reply=False)
         await state.reset_state()
@@ -81,7 +81,7 @@ async def solution_QRcode(message: types.Message, state: FSMContext):
                    f'Наличие SSL сертификата: {galochka if result["ssl"] == True else krestik}\n' \
                    f'Пародирование известных доменов: {galochka if result["suspicious"] == True else krestik}\n' \
                    f'Подозрительный JS код: {galochka if result["suspicious_js"] == True else krestik}\n' \
-                   f'Чрезмерно длинных домен: {galochka if result["Long_level"] == True else krestik}\n' \
+                   f'Чрезмерно длинных домен: {galochka if result["Long level"] == True else krestik}\n' \
                    f'Нечитаемый домен: {galochka if result["Unreadability"] == True else krestik}\n'
             await message.reply(card, reply=False)
             await state.reset_state()
