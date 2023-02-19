@@ -89,7 +89,6 @@ async def processing_qr_code(message: types.Message, state: FSMContext):
 async def processing_url(message: types.Message, state: FSMContext):
     await state.reset_state()
 
-
 @dp.message_handler(state=TestStates.URL_STATE[0])
 async def solution_url(message: types.Message, state: FSMContext):
     url = message.text
@@ -97,13 +96,13 @@ async def solution_url(message: types.Message, state: FSMContext):
     try:
         result = check_link(url)
         galochka, krestik = '✅', '❌'
-        card = f'Перенаправления: {galochka if result["redirect"] == True else krestik}\n' \
+        card = f'Отсутствие перенаправлений: {krestik if result["redirect"] == True else galochka}\n' \
                f'Поддержка https: {galochka if result["https"] == True else krestik}\n' \
                f'Наличие SSL сертификата: {galochka if result["ssl"] == True else krestik}\n' \
-               f'Пародирование известных доменов: {galochka if result["suspicious"] == True else krestik}\n' \
-               f'Подозрительный JS код: {galochka if result["suspicious_js"] == True else krestik}\n' \
-               f'Чрезмерно длинных домен: {galochka if result["Long level"] == True else krestik}\n' \
-               f'Нечитаемый домен: {galochka if result["Unreadability"] == True else krestik}\n'
+               f'Не пародирует известные домены: {krestik if result["suspicious"] == True else galochka}\n' \
+               f'Отсутствие подозрительного JS код: {krestik if result["suspicious_js"] == True else galochka}\n' \
+               f'Нормальное количество доменных уровней: {krestik if result["Long level"] == True else galochka}\n' \
+               f'Читаемый домен: {krestik if result["Unreadability"] == True else galochka}\n'
         await message.reply(card, reply=False)
         await state.reset_state()
     except:
@@ -121,13 +120,14 @@ async def solution_QRcode(message: types.Message, state: FSMContext):
         try:
             result = check_link(url)
             galochka, krestik = '✅', '❌'
-            card = f'Перенаправления: {galochka if result["redirect"] == True else krestik}\n' \
+            card = f'URL: {url}\n' \
+                   f'Отсутствие перенаправлений: {krestik if result["redirect"] == True else galochka}\n' \
                    f'Поддержка https: {galochka if result["https"] == True else krestik}\n' \
                    f'Наличие SSL сертификата: {galochka if result["ssl"] == True else krestik}\n' \
-                   f'Пародирование известных доменов: {galochka if result["suspicious"] == True else krestik}\n' \
-                   f'Подозрительный JS код: {galochka if result["suspicious_js"] == True else krestik}\n' \
-                   f'Чрезмерно длинных домен: {galochka if result["Long level"] == True else krestik}\n' \
-                   f'Нечитаемый домен: {galochka if result["Unreadability"] == True else krestik}\n'
+                   f'Не пародирует известные домены: {krestik if result["suspicious"] == True else galochka}\n' \
+                   f'Отсутствие подозрительного JS код: {krestik if result["suspicious_js"] == True else galochka}\n' \
+                   f'Нормальное количество доменных уровней: {krestik if result["Long level"] == True else galochka}\n' \
+                   f'Читаемый домен: {krestik if result["Unreadability"] == True else galochka}\n'
             await message.reply(card, reply=False)
             await state.reset_state()
         except:
