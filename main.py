@@ -76,13 +76,17 @@ async def cmd_help(message: types.Message):
 @dp.message_handler(Text(equals='Отправить URL 👀'))
 async def processing_url(message: types.Message, state: FSMContext):
     await state.set_state(TestStates.all()[1])
-    await bot.send_message(message.from_user.id, "Напиши url, который хочешь проверить:")
+    await bot.send_message(message.from_user.id, """
+    Напиши url, который хочешь проверить:\n
+    ----------------------------------------------------->""")
 
 
 @dp.message_handler(Text(equals='Загрузить QR_code 🖥'))
 async def processing_qr_code(message: types.Message, state: FSMContext):
     await state.set_state(TestStates.all()[0])
-    await bot.send_message(message.from_user.id, "Отправь qr_code, который хочешь проверить:")
+    await bot.send_message(message.from_user.id, """
+    Отправь qr_code, который хочешь проверить:\n
+    ---------------------------------------------------->""")
 
 
 @dp.message_handler(Text(equals='Отмена ❌'))
@@ -92,10 +96,16 @@ async def processing_url(message: types.Message, state: FSMContext):
 @dp.message_handler(state=TestStates.URL_STATE[0])
 async def solution_url(message: types.Message, state: FSMContext):
     url = message.text
-    await message.reply("Подождите пожалуйста, идет проверка ссылки...", reply=False)
+    await message.reply("""
+    _____________________💤💤💤________________________________\n
+    Подождите пожалуйста, идет проверка ссылки...\n
+    ___________________💤💤💤____________________________
+    """, reply=False)
     try:
         result = check_link(url)
         galochka, krestik = '✅', '❌'
+        with open('img_2.png', 'rb') as file:
+            await message.answer_photo(photo=file)
         card = f'Отсутствие перенаправлений: {krestik if result["redirect"] == True else galochka}\n' \
                f'Поддержка https: {galochka if result["https"] == True else krestik}\n' \
                f'Наличие SSL сертификата: {galochka if result["ssl"] == True else krestik}\n' \
@@ -116,8 +126,14 @@ async def solution_QRcode(message: types.Message, state: FSMContext):
     await message.photo[-1].download('src/img.png')
     try:
         url = get_link_qr_code()
-        await message.reply("Подождите пожалуйста, идет проверка ссылки...", reply=False)
+        await message.reply("""
+            _____________________💤💤💤________________________________\n
+            Подождите пожалуйста, идет проверка ссылки...\n
+            _____________💤💤💤__________________________
+            """, reply=False)
         try:
+            with open('img_3.png', 'rb') as file:
+                await message.answer_photo(photo=file)
             result = check_link(url)
             galochka, krestik = '✅', '❌'
             card = f'URL: {url}\n' \
