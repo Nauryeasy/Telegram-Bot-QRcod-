@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher, FSMContext
 from aiogram.dispatcher.filters import Text
@@ -6,7 +8,7 @@ from config import TOKEN
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 
-from src.tranlete_qr_code import get_link_qr_code
+from src.translate_qr_code import get_link_qr_code
 from src.check_url import check_link
 from utils import TestStates
 from aiogram.utils.markdown import hide_link
@@ -42,7 +44,7 @@ async def process_start_command(message: types.Message):
 |----------------------------------""", parse_mode="HTML", reply_markup=keyboard)
 
 
-@dp.message_handler(commands=["qrcode"])
+@dp.message_handler(commands=["qr_code"])
 async def cmd_qrcode(message: types.Message, state: FSMContext):
     await state.set_state(TestStates.all()[0])
     await bot.send_message(message.from_user.id, "Отправь qr_code, который хочешь проверить:")
@@ -64,55 +66,58 @@ async def cmd_help(message: types.Message):
         await message.answer_photo(photo=file)
         await message.answer(
             """
-            <b>ВЫ ОБРАТИЛИСЬ ПО КОММАНДЕ /help</b>
+            <b>ВЫ ОБРАТИЛИСЬ ПО КОМАНДЕ /help</b>
             
 1️⃣ /qrcode - при указании QRcode'а в данной команде, вы получите ссылку, а затем ссылка будет проверенна на различные факторы безопасности ссылки и затем выводиться список.
             
 2️⃣ /url - при указании ссылки в данной команде, выполнится проверка на различные факторы безопасности и тут же вам выводиться список
-            """, parse_mode='HTML', reply_markup=keyboard
-        )
+            """, parse_mode='HTML', reply_markup=keyboard)
 
 
 @dp.message_handler(Text(equals='Отправить URL 👀'))
 async def processing_url(message: types.Message, state: FSMContext):
     await state.set_state(TestStates.all()[1])
     await bot.send_message(message.from_user.id, """
-    Напиши url, который хочешь проверить:\n
-    ----------------------------------------------------->""")
+Напиши url, который хочешь проверить:
+-------------------------------------------->
+""")
 
 
 @dp.message_handler(Text(equals='Загрузить QR_code 🖥'))
 async def processing_qr_code(message: types.Message, state: FSMContext):
     await state.set_state(TestStates.all()[0])
     await bot.send_message(message.from_user.id, """
-    Отправь qr_code, который хочешь проверить:\n
-    ---------------------------------------------------->""")
+Отправь qr_code, который хочешь проверить:
+-------------------------------------------->
+""")
 
 
 @dp.message_handler(Text(equals='Отмена ❌'))
 async def processing_url(message: types.Message, state: FSMContext):
     await state.reset_state()
 
+
 @dp.message_handler(state=TestStates.URL_STATE[0])
 async def solution_url(message: types.Message, state: FSMContext):
     url = message.text
     await message.reply("""
-    _____________________💤💤💤________________________________\n
-    Подождите пожалуйста, идет проверка ссылки...\n
-    ___________________💤💤💤____________________________
+_____________________💤💤💤_________________________
+Подождите пожалуйста, идет проверка ссылки...
+_____________________💤💤💤_________________________
     """, reply=False)
     try:
         result = check_link(url)
         galochka, krestik = '✅', '❌'
         with open('img_2.png', 'rb') as file:
             await message.answer_photo(photo=file)
-        card = f'Отсутствие перенаправлений: {krestik if result["redirect"] == True else galochka}\n' \
-               f'Поддержка https: {galochka if result["https"] == True else krestik}\n' \
-               f'Наличие SSL сертификата: {galochka if result["ssl"] == True else krestik}\n' \
-               f'Не пародирует известные домены: {krestik if result["suspicious"] == True else galochka}\n' \
-               f'Отсутствие подозрительного JS код: {krestik if result["suspicious_js"] == True else galochka}\n' \
-               f'Нормальное количество доменных уровней: {krestik if result["Long level"] == True else galochka}\n' \
-               f'Читаемый домен: {krestik if result["Unreadability"] == True else galochka}\n'
+        card = \
+            f'| Отсутствие перенаправлений: {krestik if result["redirect"] == True else galochka}\n' \
+            f'| Поддержка https: {galochka if result["https"] == True else krestik}\n' \
+            f'| Наличие SSL сертификата: {galochka if result["ssl"] == True else krestik}\n' \
+            f'| Не пародирует известные домены: {krestik if result["suspicious"] == True else galochka}\n' \
+            f'| Отсутствие подозрительного JS код: {krestik if result["suspicious_js"] == True else galochka}\n' \
+            f'| Нормальное количество доменных уровней: {krestik if result["Long level"] == True else galochka}\n' \
+            f'| Читаемый домен: {krestik if result["Unreadability"] == True else galochka}\n'
         await message.reply(card, reply=False)
         await state.reset_state()
     except:
@@ -127,14 +132,16 @@ async def solution_QRcode(message: types.Message, state: FSMContext):
     try:
         url = get_link_qr_code()
         await message.reply("""
-            _____________________💤💤💤________________________________\n
-            Подождите пожалуйста, идет проверка ссылки...\n
-            _____________💤💤💤__________________________
+_____________________💤💤💤_________________________
+Подождите пожалуйста, идет проверка ссылки...
+_____________________💤💤💤_________________________
             """, reply=False)
         try:
             with open('img_3.png', 'rb') as file:
                 await message.answer_photo(photo=file)
-            result = check_link(url)
+            parsed_url = urlparse(url)
+            domain = 'http://' + parsed_url.hostname + '/'
+            result = check_link(domain)
             galochka, krestik = '✅', '❌'
             card = f'URL: {url}\n' \
                    f'Отсутствие перенаправлений: {krestik if result["redirect"] == True else galochka}\n' \
