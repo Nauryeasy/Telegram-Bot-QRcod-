@@ -23,11 +23,11 @@ dp.middleware.setup(LoggingMiddleware())
 @dp.message_handler(commands=['start'])
 @dp.message_handler(content_types=['photo'])
 async def process_start_command(message: types.Message):
-    start_button_1, start_button_2 = 'Отправить URL 👀', 'Загрузить QR_code 🖥'  # , 'Отмена ❌'
+    start_button_1, start_button_2, start_button_3 = 'Отправить URL 👀', 'Загрузить QR_code 🖥', 'Отмена ❌'
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(start_button_1)
     keyboard.add(start_button_2)
-    # keyboard.add(start_button_3)
+    keyboard.add(start_button_3)
     with open('img.png', 'rb') as file:
         await message.answer_photo(photo=file)
         await message.answer("""|----------------------------------
@@ -59,10 +59,11 @@ async def cmd_url(message: types.Message, state: FSMContext):
 
 @dp.message_handler(commands=["help"])
 async def cmd_help(message: types.Message):
-    start_button_1, start_button_2 = 'Отправить URL 👀', 'Загрузить QRcode 🖥'  # , 'Отмена ❌'
+    start_button_1, start_button_2, start_button_3 = 'Отправить URL 👀', 'Загрузить QRcode 🖥', 'Отмена ❌'
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(start_button_1)
     keyboard.add(start_button_2)
+    keyboard.add(start_button_3)
     with open('img_1.png', 'rb') as file:
         await message.answer_photo(photo=file)
         await message.answer(
@@ -93,9 +94,54 @@ async def processing_qr_code(message: types.Message, state: FSMContext):
 """)
 
 
-@dp.message_handler(Text(equals='Отмена ❌'))
+@dp.message_handler(Text(equals='Отмена ❌'), state=TestStates.QR_STATE[0])
 async def processing_url(message: types.Message, state: FSMContext):
     await state.reset_state()
+    start_button_1, start_button_2, start_button_3 = 'Отправить URL 👀', 'Загрузить QR_code 🖥', 'Отмена ❌'
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(start_button_1)
+    keyboard.add(start_button_2)
+    keyboard.add(start_button_3)
+    with open('img.png', 'rb') as file:
+        await message.answer_photo(photo=file)
+        await message.answer("""|----------------------------------
+    |<b>Приветствую тебя пользователь!</b>
+    |----------------------------------
+    |<b>Чтобы пользоваться ботом, посмотрите на список команд:</b>
+    |----------------------------------
+    |
+    |<b>---></b> /qr_code
+    |
+    |<b>---></b> /url
+    |
+    |<b>---></b> /help
+    |
+    |----------------------------------""", parse_mode="HTML", reply_markup=keyboard)
+
+
+@dp.message_handler(Text(equals='Отмена ❌'), state=TestStates.URL_STATE[0])
+async def processing_url(message: types.Message, state: FSMContext):
+    await state.reset_state()
+    start_button_1, start_button_2, start_button_3 = 'Отправить URL 👀', 'Загрузить QR_code 🖥', 'Отмена ❌'
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(start_button_1)
+    keyboard.add(start_button_2)
+    keyboard.add(start_button_3)
+    with open('img.png', 'rb') as file:
+        await message.answer_photo(photo=file)
+        await message.answer("""|----------------------------------
+    |<b>Приветствую тебя пользователь!</b>
+    |----------------------------------
+    |<b>Чтобы пользоваться ботом, посмотрите на список команд:</b>
+    |----------------------------------
+    |
+    |<b>---></b> /qr_code
+    |
+    |<b>---></b> /url
+    |
+    |<b>---></b> /help
+    |
+    |----------------------------------""", parse_mode="HTML", reply_markup=keyboard)
 
 
 @dp.message_handler(state=TestStates.URL_STATE[0])
