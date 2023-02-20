@@ -10,8 +10,6 @@ def get_link_qr_code():
     expression = r'(http?://(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?://(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})'
     regex = re.compile(expression, re.IGNORECASE)
     if regex.match(link):
-        print(link)
         return link
     else:
-        print(link)
         return False

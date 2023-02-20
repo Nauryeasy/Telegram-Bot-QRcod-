@@ -1,3 +1,4 @@
+import time
 from urllib.parse import urlparse
 
 from aiogram import Bot, types
@@ -106,7 +107,9 @@ _____________________💤💤💤_________________________
 _____________________💤💤💤_________________________
     """, reply=False)
     try:
-        result = check_link(url)
+        parsed_url = urlparse(url)
+        domain = parsed_url.scheme + '://' + parsed_url.netloc + '/'
+        result = check_link(domain)
         galochka, krestik = '✅', '❌'
         with open('img_2.png', 'rb') as file:
             await message.answer_photo(photo=file)
@@ -121,14 +124,34 @@ _____________________💤💤💤_________________________
         await message.reply(card, reply=False)
         await state.reset_state()
     except:
-        await message.reply("Некорректная ссылка, попробуйте снова😵", reply=False)
-        await state.reset_state()
+        try:
+            parsed_url = urlparse(url)
+            domain = 'http://' + parsed_url.netloc + '/'
+            result = check_link(domain)
+            galochka, krestik = '✅', '❌'
+            with open('img_2.png', 'rb') as file:
+                await message.answer_photo(photo=file)
+            card = \
+                f'| Отсутствие перенаправлений: {krestik if result["redirect"] == True else galochka}\n' \
+                f'| Поддержка https: {galochka if result["https"] == True else krestik}\n' \
+                f'| Наличие SSL сертификата: {galochka if result["ssl"] == True else krestik}\n' \
+                f'| Не пародирует известные домены: {krestik if result["suspicious"] == True else galochka}\n' \
+                f'| Отсутствие подозрительного JS код: {krestik if result["suspicious_js"] == True else galochka}\n' \
+                f'| Нормальное количество доменных уровней: {krestik if result["Long level"] == True else galochka}\n' \
+                f'| Читаемый домен: {krestik if result["Unreadability"] == True else galochka}\n'
+            await message.reply(card, reply=False)
+            await state.reset_state()
+        except:
+            await message.reply("Некорректная ссылка, попробуйте снова😵", reply=False)
+            await state.reset_state()
 
 
 @dp.message_handler(state=TestStates.QR_STATE[0], content_types=['photo'])
 async def solution_QRcode(message: types.Message, state: FSMContext):
-    await message.reply("Изображение скачивается...", reply=False)
+    await message.reply("📎 Изображение скачивается... 📎 ", reply=False)
+    time.sleep(1)
     await message.photo[-1].download('src/img.png')
+    time.sleep(1)
     try:
         url = get_link_qr_code()
         await message.reply("""
@@ -136,11 +159,13 @@ _____________________💤💤💤_________________________
 Подождите пожалуйста, идет проверка ссылки...
 _____________________💤💤💤_________________________
             """, reply=False)
+        time.sleep(1)
         try:
             with open('img_3.png', 'rb') as file:
                 await message.answer_photo(photo=file)
+                time.sleep(2)
             parsed_url = urlparse(url)
-            domain = 'http://' + parsed_url.hostname + '/'
+            domain = parsed_url.scheme + '://' + parsed_url.netloc + '/'
             result = check_link(domain)
             galochka, krestik = '✅', '❌'
             card = f'URL: {url}\n' \
@@ -154,10 +179,47 @@ _____________________💤💤💤_________________________
             await message.reply(card, reply=False)
             await state.reset_state()
         except:
-            await message.reply("Некорректная ссылка, попробуйте снова😵", reply=False)
-            await state.reset_state()
+            try:
+                await message.reply("""🔒 ССЫЛКА ИМЕЕТ ПРОТОКОЛ https! 🔒
+⚠️ Не удалось подключиться к протоколу https ⚠️
+🖥 Идёт замена протокола на http, пожалуйста подождите... 🖥""", reply=False)
+                time.sleep(2)
+                parsed_url = urlparse(url)
+                domain = 'http://' + parsed_url.netloc + parsed_url.path
+                result = check_link(domain)
+                galochka, krestik = '✅', '❌'
+                card = f'URL: {domain}\n' \
+                       f'Отсутствие перенаправлений: {krestik if result["redirect"] == True else galochka}\n' \
+                       f'Поддержка https: {galochka if result["https"] == True else krestik}\n' \
+                       f'Наличие SSL сертификата: {galochka if result["ssl"] == True else krestik}\n' \
+                       f'Не пародирует известные домены: {krestik if result["suspicious"] == True else galochka}\n' \
+                       f'Отсутствие подозрительного JS код: {krestik if result["suspicious_js"] == True else galochka}\n' \
+                       f'Нормальное количество доменных уровней: {krestik if result["Long level"] == True else galochka}\n' \
+                       f'Читаемый домен: {krestik if result["Unreadability"] == True else galochka}\n'
+                await message.reply(card, reply=False)
+                await state.reset_state()
+            except:
+                await message.reply("⚠️ Ссылка в QR-коде некорректная... ⚠️", reply=False)
+                await state.reset_state()
     except:
-        await message.reply("Простите, не удалось прочитать qr_code, попробуйте снова😵", reply=False)
+        await message.reply(
+            """
+------------------------------------
+
+                     ⚠️⚠️⚠️
+                     
+<b>НЕ УДАЛОСЬ РАСПОЗНАТЬ QR-КОД</b>
+
+<b>Причиной может быть:</b>
+
+1️⃣ - Плохое качество картинки
+
+2️⃣ - QR-кода недействителен
+
+3️⃣ - Недопустимый формат шифрования QR-кода
+
+------------------------------------
+            """, parse_mode='HTML', reply=False)
         await state.reset_state()
 
 
